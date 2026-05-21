@@ -1,3 +1,44 @@
+
+## 修改背景
+
+我在阅读 `plugin-search` 和 Electron demo 搜索栏实现时，发现搜索面板 UI 已经有 “By word / 整词匹配” 入口，但底层辅助函数 `findSearchMatches` 和 `replaceAllMatches` 还没有真正支持整词匹配。
+
+这会导致：
+- 插件 UI 能表达整词匹配能力
+- 但外部复用这些辅助函数时，行为并不完整
+
+## 本次修改
+
+我主要做了三件事：
+
+1. 在 `SearchOptions` 中补充 `wholeWord` 选项
+2. 统一搜索正则构造逻辑，让查找和替换行为保持一致
+3. 补充整词匹配相关测试，并把 Electron demo 搜索栏接上该能力
+
+## 效果
+
+例如搜索 `cat`：
+
+`cat scatter cat cat_ cat-cat`
+
+开启整词匹配后：
+- 会命中独立出现的 `cat`
+- 会命中 `cat-cat` 中被标点分隔的 `cat`
+- 不会误命中 `scatter` 中的 `cat`
+- 不会误命中 `cat_` 这种标识符片段
+
+## 验证
+
+我做了以下验证：
+
+- 运行 `packages/plugin-search/test/plugin-search.test.ts`
+- 检查 `packages/plugin-search` 的 TypeScript 类型
+- 检查 `apps/electron-demo` 的 TypeScript 类型
+
+## 说明
+
+这个改动不涉及破坏性 API 变更，属于对现有搜索能力的补全，也让插件层和 demo 层的行为更一致。
+
 <div align="center">
 
 # Nexus-Editor
